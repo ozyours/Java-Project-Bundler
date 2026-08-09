@@ -4,18 +4,15 @@ This file tracks the project plan. Committed Plan = discussed and committed (don
 Pending Plan = missing, not yet implemented.
 
 The project started from `SDD.md` (the software design document) and is now
-scaffolded as a Maven/JavaFX application. Nothing is committed to git yet, so the
-Committed Plan below is limited to implemented-but-uncommitted work; every other
-item derives from `SDD.md`.
+scaffolded as a Maven/JavaFX application with the packaging engine and tests in
+place. Every pending item derives from `SDD.md`.
 
 ## Committed Plan
 
-### Implemented, awaiting commit
-
-- [ ] **Maven project scaffold** — Java 17 Maven project (`pom.xml`) with JavaFX 21.0.12, AtlantaFX 2.0.1, org.json, and JUnit wired; `mvnw` wrapper included; builds with `./mvnw verify`.
-- [ ] **Runnable main window** — `com.jpb.bundler.MainApp` JavaFX entry point applying the AtlantaFX `PrimerLight` theme; launches with `./mvnw javafx:run`.
-- [ ] **Main window layout** — SDD §4 dashboard: header with Load/Save actions, project form (Name, Source, JDK/JVM, Icon, Output) with Browse buttons, build-engine detection tag, Build Progress log area, and accent Build button; `DashboardView` + `dashboard.css`.
-- [ ] **Repo housekeeping** — `.gitignore`, `README.md`, and a freshly initialized git repository (nothing committed yet).
+- [x] **Maven project scaffold** — Java 17 Maven project (`pom.xml`) with JavaFX 21.0.12, AtlantaFX 2.0.1, org.json, and JUnit wired; `mvnw` wrapper included; builds with `./mvnw verify` (`3b01ee9`).
+- [x] **Runnable main window** — `com.jpb.bundler.MainApp` JavaFX entry point applying the AtlantaFX `PrimerLight` theme; launches with `./mvnw javafx:run` (`3b01ee9`).
+- [x] **Main window layout** — SDD §4 dashboard: header with Load/Save actions, project form (Name, Source, JDK/JVM, Icon, Output) with Browse buttons, build-engine detection tag, Build Progress log area, and accent Build button; `DashboardView` + `dashboard.css` (`3b01ee9`).
+- [x] **Repo housekeeping** — `.gitignore`, `README.md`, `AGENTS.md`, `ROADMAP.md`, `SDD.md`, and a freshly initialized git repository (`3b01ee9`).
 
 ## Pending Plan
 
