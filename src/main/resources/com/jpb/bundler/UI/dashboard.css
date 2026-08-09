@@ -1,0 +1,99 @@
+/* Dashboard styling layered on top of the AtlantaFX PrimerLight theme. */
+
+.root-panel {
+    -fx-background-color: #f6f8fa;
+}
+
+/* Project chooser card (start screen) */
+.chooser-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #d0d7de;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 28;
+    -fx-effect: dropshadow(gaussian, rgba(140, 149, 159, 0.16), 20, 0, 0, 4);
+}
+
+/* Second-column section header on the dashboard */
+.column-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #24292f;
+}
+
+/* Read-only derived paths (folder, output, icon) */
+.info-value {
+    -fx-font-family: "Consolas", "SFMono-Regular", "Menlo", monospace;
+    -fx-font-size: 12px;
+    -fx-text-fill: #57606a;
+}
+
+.info-value.found {
+    -fx-text-fill: #1a7f37;
+}
+
+.info-value.missing {
+    -fx-text-fill: #9a6700;
+}
+
+.form-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #24292f;
+}
+
+.form-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-color: #d0d7de;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 18 20 18 20;
+    -fx-effect: dropshadow(gaussian, rgba(140, 149, 159, 0.14), 14, 0, 0, 2);
+}
+
+.detection-tag {
+    -fx-background-color: #6e7781; /* neutral fallback so the tag is never unreadable */
+    -fx-background-radius: 999;
+    -fx-background-insets: 0;
+    -fx-padding: 2 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+}
+
+.detection-tag.accent {
+    -fx-background-color: #0969da;
+}
+
+.detection-tag.success {
+    -fx-background-color: #1a7f37;
+}
+
+.detection-tag.warning {
+    -fx-background-color: #9a6700;
+}
+
+.detection-tag.danger {
+    -fx-background-color: #cf222e;
+}
+
+.log-area {
+    -fx-font-family: "Consolas", "SFMono-Regular", "Menlo", monospace;
+    -fx-font-size: 12px;
+}
+
+/* Recent project entry on the chooser card */
+.recent-project {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 12px;
+    -fx-text-fill: #0969da;
+    -fx-cursor: hand;
+}
+
+.recent-project:hover {
+    -fx-background-color: #f0f3f6;
+}
