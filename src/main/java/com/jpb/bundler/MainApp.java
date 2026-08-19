@@ -249,11 +249,11 @@ public final class MainApp extends Application {
     private Scene Scene(Parent _Root, double _Width, double _Height) {
         Scene __Scene = new Scene(_Root, _Width, _Height);
         __Scene.getStylesheets().add(
-                // Note: resource lives under ui/ (matching the package). Resource
-                // lookups inside a JAR are case-sensitive, so "UI/..." would break
-                // packaged bundles even though it works on a case-insensitive
-                // filesystem during development.
-                Objects.requireNonNull(MainApp.class.getResource("ui/dashboard.css"),
+                // Note: resource lives under UI/ (matching the package). Resource
+                // lookups inside a JAR are case-sensitive, so the case here must
+                // match the directory exactly — a mismatch is masked on Windows/macOS
+                // (case-insensitive filesystems) but breaks packaged bundles.
+                Objects.requireNonNull(MainApp.class.getResource("UI/dashboard.css"),
                         "dashboard.css resource is missing").toExternalForm());
         return __Scene;
     }
