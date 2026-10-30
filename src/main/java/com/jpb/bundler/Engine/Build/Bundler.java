@@ -49,9 +49,21 @@ import java.util.zip.ZipFile;
 public final class Bundler
 {
 	/**
-	 * Module fallback when jdeps cannot analyze the main JAR.
+	 * Fallback jlink modules when jdeps cannot analyze the main JAR.
+	 * Cover desktop, scripting, XML, and crypto needs so a typical
+	 * app still starts instead of failing with missing classes.
 	 */
-	private static final String FallbackModules = "java.base,java.logging,java.desktop,java.naming,jdk.unsupported,jdk.crypto.ec";
+	private static final String FallbackModules = "java.base,java.logging,java.desktop,java.naming,java.scripting,java.xml,java.datatransfer,java.prefs,jdk.unsupported,jdk.crypto.ec";
+
+	/**
+	 * Extra platform modules required transitively by modular JavaFX jars.
+	 * Add them explicitly because the jdeps classpath scan misses these
+	 * transitive needs, leaving a runtime that fails at JavaFX startup.
+	 * Cover the full JavaFX closure (javafx.graphics needs java.desktop and
+	 * jdk.unsupported, fxml needs java.scripting and java.xml) so a minimal
+	 * jdeps result still yields a runnable image.
+	 */
+	private static final String JavaFxExtraModules = "java.base,java.logging,java.desktop,java.naming,java.scripting,java.xml,java.datatransfer,java.prefs,jdk.unsupported,jdk.crypto.ec";
 
 	private Bundler()
 	{
@@ -344,7 +356,8 @@ public final class Bundler
 	 * JavaFX needs {@code java.desktop} and {@code jdk.unsupported}), otherwise
 	 * the packaged app dies at startup with a missing-class error. Non-platform
 	 * modules (javafx.*, org.json, ...) live in {@code JARs/lib/} and are ignored
-	 * by jdeps, so only JDK modules end up in the list jlink can add.</p>
+	 * by jdeps, so only JDK modules end up in the list jlink can add. Augment
+	 * the result with JavaFX extras when the bundle carries JavaFX.</p>
 	 */
 	private static String ComputeModules(Path _Jdk, Path _MainJar, Path _LibDir, Consumer<String> _Log) throws IOException, InterruptedException
 	{
@@ -352,7 +365,7 @@ public final class Bundler
 		Path __Jdeps = __Bin.resolve(IsWindows() ? "jdeps.exe" : "jdeps");
 		if (!Files.isRegularFile(__Jdeps) || !Files.isRegularFile(_MainJar))
 		{
-			return FallbackModules;
+			return AugmentJavaFxModules(FallbackModules, _LibDir);
 		}
 
 		List<String> __Command = new ArrayList<>(List.of(__Jdeps.toString(), "--ignore-missing-deps", "--print-module-deps", "--multi-release", JavaFeatureVersion(_Jdk), _MainJar.toString()));
@@ -360,7 +373,7 @@ public final class Bundler
 		{
 			try (Stream<Path> __Stream = Files.list(_LibDir))
 			{
-				__Stream.filter(_P -> _P.getFileName().toString().endsWith(".jar")).sorted().forEach(_P -> __Command.add(_P.toString()));
+				__Stream.filter(_P -> _P.getFileName().toString().endsWith(".jar")).filter(_P -> !HasModuleInfo(_P)).sorted().forEach(_P -> __Command.add(_P.toString()));
 			}
 		}
 
@@ -370,13 +383,16 @@ public final class Bundler
 		{
 			__Output = __Reader.lines().collect(Collectors.joining());
 		}
-		if (__Process.waitFor() == 0 && !__Output.isBlank())
+		int __Code = __Process.waitFor();
+		if (__Code == 0 && !__Output.isBlank())
 		{
 			String __Modules = JdkModulesOnly(__Output.trim());
-			_Log.accept("jdeps module analysis: " + __Modules);
-			return __Modules;
+			String __Augmented = AugmentJavaFxModules(__Modules, _LibDir);
+			_Log.accept("jdeps module analysis: " + __Augmented);
+			return __Augmented;
 		}
-		return FallbackModules;
+		_Log.accept("Warning: jdeps analysis failed (exit code " + __Code + ") — using fallback modules with JavaFX requirements.");
+		return AugmentJavaFxModules(FallbackModules, _LibDir);
 	}
 
 	/**
@@ -389,6 +405,39 @@ public final class Bundler
 	{
 		String __Filtered = Arrays.stream(_Modules.split(",")).map(String::trim).filter(_M -> _M.startsWith("java.") || _M.startsWith("jdk.")).distinct().collect(Collectors.joining(","));
 		return __Filtered.isEmpty() ? FallbackModules : __Filtered;
+	}
+
+	/**
+	 * Add JavaFX transitive platform modules when the bundle carries JavaFX.
+	 * Leave non-JavaFX apps untouched to keep the jlink runtime minimal.
+	 *
+	 * @param _Modules jdeps-derived or fallback module list
+	 * @param _LibDir dependency jars scanned for JavaFX
+	 * @return augmented module list, or the input unchanged without JavaFX
+	 */
+	private static String AugmentJavaFxModules(String _Modules, Path _LibDir)
+	{
+		if (JavaFxModulePath(_LibDir) == null)
+		{
+			return _Modules;
+		}
+		return MergeModules(_Modules, JavaFxExtraModules);
+	}
+
+	/**
+	 * Merge two comma-separated module lists into one de-duplicated list.
+	 * Trim and deduplicate because jdeps output and the JavaFX extras overlap,
+	 * and jlink needs a clean {@code --add-modules} value.
+	 *
+	 * @param _Base base module list
+	 * @param _Extra modules to add
+	 * @return merged, trimmed, distinct module list
+	 */
+	private static String MergeModules(String _Base, String _Extra)
+	{
+		List<String> __Merged = new ArrayList<>(Arrays.asList(_Base.split(",")));
+		__Merged.addAll(Arrays.asList(_Extra.split(",")));
+		return __Merged.stream().map(String::trim).filter(_M -> !_M.isEmpty()).distinct().collect(Collectors.joining(","));
 	}
 
 	/**
