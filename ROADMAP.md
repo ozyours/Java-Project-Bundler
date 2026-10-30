@@ -13,6 +13,7 @@ place. Every pending item derives from `SDD.md`.
 - [x] **Runnable main window** — `com.jpb.bundler.MainApp` JavaFX entry point applying the AtlantaFX `PrimerLight` theme; launches with `./mvnw javafx:run` (`3b01ee9`).
 - [x] **Main window layout** — SDD §4 dashboard: header with Load/Save actions, project form (Name, Source, JDK/JVM, Icon, Output) with Browse buttons, build-engine detection tag, Build Progress log area, and accent Build button; `DashboardView` + `dashboard.css` (`3b01ee9`).
 - [x] **Repo housekeeping** — `.gitignore`, `README.md`, `AGENTS.md`, `ROADMAP.md`, `SDD.md`, and a freshly initialized git repository (`3b01ee9`).
+- [x] **JRE assembler** — `Bundler.AssembleJvm` runs `jlink` (`--add-modules`, `--strip-debug`, `--compress=2`) into `jvm/`, or copies the full JDK when no `jlink` is present; module list comes from `jdeps` with the JavaFX platform closure merged in, so bundled JavaFX apps start (`4bb0af6`).
 
 ## Pending Plan
 
@@ -42,7 +43,6 @@ place. Every pending item derives from `SDD.md`.
 - [ ] **Build invoker** — run `mvn clean package` / `gradle build` via `ProcessBuilder` from the detected engine.
 - [ ] **Output directory creation** — create `<Output>/<Project Name>/` with `JARs/`, `jvm/`, `config/`, `assets/` subdirectories.
 - [ ] **JAR assembly** — copy built JARs from `target/` or `build/libs/` into `JARs/` (with `lib/` for dependency JARs).
-- [ ] **JRE assembler** — run `jlink` on the specified JDK into `jvm/`, or copy a specified JRE folder directly.
 - [ ] **Config & assets** — write default `config/app-config.json`; copy selected icon into `assets/`.
 
 ### Native launcher (`SDD.md` §6)
